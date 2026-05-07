@@ -87,7 +87,7 @@ public class BatAlgorithmFinalDashboard extends JFrame {
     }
 
     public BatAlgorithmFinalDashboard() {
-        setTitle("Algorithm Comparison Simulator: Baseline BA vs Enhanced IBA");
+        setTitle("Algorithm Comparison Simulator: Baseline BA vs Improved BA + DWA");
         setSize(1450, 860);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -114,7 +114,7 @@ public class BatAlgorithmFinalDashboard extends JFrame {
         title.setForeground(Color.WHITE);
         title.setFont(new Font("Segoe UI", Font.BOLD, 25));
 
-        JLabel subtitle = new JLabel("Organized outputs for Metrics Used, Experimental Results, Result Tables and Graphs, and Comparative Analysis");
+        JLabel subtitle = new JLabel("Baseline BA vs Improved BA with DWA local planning and virtual-point path switching");
         subtitle.setForeground(new Color(205, 216, 232));
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
@@ -272,7 +272,7 @@ public class BatAlgorithmFinalDashboard extends JFrame {
                 "1. Use Run Single Simulation to show the actual robot path comparison on the map.\n" +
                 "2. Use Run Full Experiment to generate all required tables and graphs for your paper.\n" +
                 "3. Go to Metrics Used for separate graphs: execution time, memory usage, operations, and scalability.\n" +
-                "4. Go to Experimental Results for separate Baseline and Enhanced results.\n" +
+                "4. Go to Experimental Results for separate Baseline BA and Improved BA + DWA results.\n" +
                 "5. Go to Result Tables and Graphs for complete tables, runtime graph, memory graph, and operations graph.\n" +
                 "6. Go to Comparative Analysis for runtime comparison, space comparison, best/worst cases, and winner identification.\n\n" +
                 "You can drag the divider between the map and right-side results to resize them. You can also drag the divider between the map and controls."
@@ -303,6 +303,7 @@ public class BatAlgorithmFinalDashboard extends JFrame {
                 "• Memory usage\n" +
                 "• Number of comparisons / operations\n" +
                 "• Scalability with input size\n\n" +
+                "The improved side follows the study structure: global Improved BA, logarithmic velocity weighting, Cauchy disturbance, DWA-style local path planning, and virtual-point path switching.\n\n" +
                 "Click Run Full Experiment to generate all graphs."
         );
 
@@ -330,7 +331,7 @@ public class BatAlgorithmFinalDashboard extends JFrame {
 
         JTabbedPane subTabs = new JTabbedPane();
         subTabs.addTab("Baseline Algorithm Results", createBaselineResultsPanel());
-        subTabs.addTab("Enhanced Algorithm Results vs Baseline", createEnhancedResultsPanel());
+        subTabs.addTab("Improved BA + DWA Results vs Baseline", createEnhancedResultsPanel());
 
         panel.add(subTabs, BorderLayout.CENTER);
         return panel;
@@ -656,12 +657,12 @@ public class BatAlgorithmFinalDashboard extends JFrame {
             }
 
             ResultRecord baseAverage = baseAvg.toRecord(names[s], "Baseline BA", "Average", trials);
-            ResultRecord enhancedAverage = enhancedAvg.toRecord(names[s], "Enhanced IBA", "Average", trials);
+            ResultRecord enhancedAverage = enhancedAvg.toRecord(names[s], "Improved BA + DWA", "Average", trials);
 
             ResultRecord baseBest = toCaseRecord(names[s], "Baseline BA", "Best", bestByFitness(baseTrialResults));
             ResultRecord baseWorst = toCaseRecord(names[s], "Baseline BA", "Worst", worstByFitness(baseTrialResults));
-            ResultRecord enhBest = toCaseRecord(names[s], "Enhanced IBA", "Best", bestByFitness(enhancedTrialResults));
-            ResultRecord enhWorst = toCaseRecord(names[s], "Enhanced IBA", "Worst", worstByFitness(enhancedTrialResults));
+            ResultRecord enhBest = toCaseRecord(names[s], "Improved BA + DWA", "Best", bestByFitness(enhancedTrialResults));
+            ResultRecord enhWorst = toCaseRecord(names[s], "Improved BA + DWA", "Worst", worstByFitness(enhancedTrialResults));
 
             experimentRecords.add(baseAverage);
             experimentRecords.add(enhancedAverage);
@@ -709,7 +710,7 @@ public class BatAlgorithmFinalDashboard extends JFrame {
         experimentRecords.clear();
 
         ResultRecord b = toCaseRecord("Current " + gridSize + "x" + gridSize, "Baseline BA", "Single Run", baselineResult);
-        ResultRecord e = toCaseRecord("Current " + gridSize + "x" + gridSize, "Enhanced IBA", "Single Run", enhancedResult);
+        ResultRecord e = toCaseRecord("Current " + gridSize + "x" + gridSize, "Improved BA + DWA", "Single Run", enhancedResult);
 
         experimentRecords.add(b);
         experimentRecords.add(e);
@@ -828,7 +829,7 @@ public class BatAlgorithmFinalDashboard extends JFrame {
 
         if (sizes.length == 0 && experimentRecords.size() >= 2) {
             ResultRecord base = findSingle("Baseline BA");
-            ResultRecord enh = findSingle("Enhanced IBA");
+            ResultRecord enh = findSingle("Improved BA + DWA");
 
             if (base != null && enh != null) {
                 addComparisonSet(base.inputSize, base, enh);
@@ -839,7 +840,7 @@ public class BatAlgorithmFinalDashboard extends JFrame {
 
         for (String size : sizes) {
             ResultRecord base = findRecord(size, "Baseline BA", "Average");
-            ResultRecord enh = findRecord(size, "Enhanced IBA", "Average");
+            ResultRecord enh = findRecord(size, "Improved BA + DWA", "Average");
 
             if (base == null || enh == null) continue;
 
@@ -848,19 +849,19 @@ public class BatAlgorithmFinalDashboard extends JFrame {
     }
 
     void addComparisonSet(String size, ResultRecord base, ResultRecord enh) {
-        addComparisonRow(size, "Runtime comparison", base.time <= enh.time ? "Baseline BA" : "Enhanced IBA",
+        addComparisonRow(size, "Runtime comparison", base.time <= enh.time ? "Baseline BA" : "Improved BA + DWA",
                 format(base.time) + " ms", format(enh.time) + " ms",
                 "Lower execution time is better.");
 
-        addComparisonRow(size, "Space usage comparison", base.memory <= enh.memory ? "Baseline BA" : "Enhanced IBA",
+        addComparisonRow(size, "Space usage comparison", base.memory <= enh.memory ? "Baseline BA" : "Improved BA + DWA",
                 format(base.memory) + " KB", format(enh.memory) + " KB",
                 "Lower memory usage is better.");
 
-        addComparisonRow(size, "Operations comparison", base.operations <= enh.operations ? "Baseline BA" : "Enhanced IBA",
+        addComparisonRow(size, "Operations comparison", base.operations <= enh.operations ? "Baseline BA" : "Improved BA + DWA",
                 String.valueOf(Math.round(base.operations)), String.valueOf(Math.round(enh.operations)),
                 "Fewer operations indicate lower computational work.");
 
-        addComparisonRow(size, "Path quality / fitness", base.fitness <= enh.fitness ? "Baseline BA" : "Enhanced IBA",
+        addComparisonRow(size, "Path quality / fitness", base.fitness <= enh.fitness ? "Baseline BA" : "Improved BA + DWA",
                 format(base.fitness), format(enh.fitness),
                 "Lower fitness means shorter, safer, smoother path.");
     }
@@ -908,19 +909,19 @@ public class BatAlgorithmFinalDashboard extends JFrame {
 
         LinkedHashMap<String, double[]> time = new LinkedHashMap<>();
         time.put("Baseline BA", new double[]{baselineResult.executionTimeMs});
-        time.put("Enhanced IBA", new double[]{enhancedResult.executionTimeMs});
+        time.put("Improved BA + DWA", new double[]{enhancedResult.executionTimeMs});
 
         LinkedHashMap<String, double[]> mem = new LinkedHashMap<>();
         mem.put("Baseline BA", new double[]{baselineResult.memoryKb});
-        mem.put("Enhanced IBA", new double[]{enhancedResult.memoryKb});
+        mem.put("Improved BA + DWA", new double[]{enhancedResult.memoryKb});
 
         LinkedHashMap<String, double[]> ops = new LinkedHashMap<>();
         ops.put("Baseline BA", new double[]{baselineResult.operations});
-        ops.put("Enhanced IBA", new double[]{enhancedResult.operations});
+        ops.put("Improved BA + DWA", new double[]{enhancedResult.operations});
 
         LinkedHashMap<String, double[]> fitness = new LinkedHashMap<>();
         fitness.put("Baseline BA", new double[]{baselineResult.fitness});
-        fitness.put("Enhanced IBA", new double[]{enhancedResult.fitness});
+        fitness.put("Improved BA + DWA", new double[]{enhancedResult.fitness});
 
         metricTimeChart.setChart("Execution Time Across Input Sizes", "Time (ms)", cats, time);
         metricMemoryChart.setChart("Memory Usage", "Memory (KB)", cats, mem);
@@ -939,41 +940,41 @@ public class BatAlgorithmFinalDashboard extends JFrame {
         baselineMemoryChart.setChart("Baseline BA - Memory Usage", "Memory (KB)", cats, only("Baseline BA", new double[]{baselineResult.memoryKb}));
         baselineOperationsChart.setChart("Baseline BA - Operations", "Operations", cats, only("Baseline BA", new double[]{baselineResult.operations}));
 
-        enhancedTimeChart.setChart("Enhanced IBA vs Baseline BA - Execution Time", "Time (ms)", cats, time);
-        enhancedMemoryChart.setChart("Enhanced IBA vs Baseline BA - Memory Usage", "Memory (KB)", cats, mem);
-        enhancedOperationsChart.setChart("Enhanced IBA vs Baseline BA - Operations", "Operations", cats, ops);
+        enhancedTimeChart.setChart("Improved BA + DWA vs Baseline BA - Execution Time", "Time (ms)", cats, time);
+        enhancedMemoryChart.setChart("Improved BA + DWA vs Baseline BA - Memory Usage", "Memory (KB)", cats, mem);
+        enhancedOperationsChart.setChart("Improved BA + DWA vs Baseline BA - Operations", "Operations", cats, ops);
     }
 
     void refreshAllChartsFromExperiment() {
         String[] cats = {"Small", "Medium", "Large"};
 
         double[] baseTime = averageValues("Baseline BA", "time");
-        double[] enhTime = averageValues("Enhanced IBA", "time");
+        double[] enhTime = averageValues("Improved BA + DWA", "time");
 
         double[] baseMemory = averageValues("Baseline BA", "memory");
-        double[] enhMemory = averageValues("Enhanced IBA", "memory");
+        double[] enhMemory = averageValues("Improved BA + DWA", "memory");
 
         double[] baseOps = averageValues("Baseline BA", "operations");
-        double[] enhOps = averageValues("Enhanced IBA", "operations");
+        double[] enhOps = averageValues("Improved BA + DWA", "operations");
 
         double[] baseFitness = averageValues("Baseline BA", "fitness");
-        double[] enhFitness = averageValues("Enhanced IBA", "fitness");
+        double[] enhFitness = averageValues("Improved BA + DWA", "fitness");
 
         LinkedHashMap<String, double[]> timeMap = new LinkedHashMap<>();
         timeMap.put("Baseline BA", baseTime);
-        timeMap.put("Enhanced IBA", enhTime);
+        timeMap.put("Improved BA + DWA", enhTime);
 
         LinkedHashMap<String, double[]> memoryMap = new LinkedHashMap<>();
         memoryMap.put("Baseline BA", baseMemory);
-        memoryMap.put("Enhanced IBA", enhMemory);
+        memoryMap.put("Improved BA + DWA", enhMemory);
 
         LinkedHashMap<String, double[]> operationsMap = new LinkedHashMap<>();
         operationsMap.put("Baseline BA", baseOps);
-        operationsMap.put("Enhanced IBA", enhOps);
+        operationsMap.put("Improved BA + DWA", enhOps);
 
         LinkedHashMap<String, double[]> scalabilityMap = new LinkedHashMap<>();
         scalabilityMap.put("Baseline BA Fitness", baseFitness);
-        scalabilityMap.put("Enhanced IBA Fitness", enhFitness);
+        scalabilityMap.put("Improved BA + DWA Fitness", enhFitness);
 
         metricTimeChart.setChart("Execution Time Across Input Sizes", "Time (ms)", cats, timeMap);
         metricMemoryChart.setChart("Memory Usage Across Input Sizes", "Memory (KB)", cats, memoryMap);
@@ -991,15 +992,15 @@ public class BatAlgorithmFinalDashboard extends JFrame {
         baselineMemoryChart.setChart("Baseline BA - Memory Usage", "Memory (KB)", cats, only("Baseline BA", baseMemory));
         baselineOperationsChart.setChart("Baseline BA - Operations", "Operations", cats, only("Baseline BA", baseOps));
 
-        enhancedTimeChart.setChart("Enhanced IBA vs Baseline BA - Execution Time", "Time (ms)", cats, timeMap);
-        enhancedMemoryChart.setChart("Enhanced IBA vs Baseline BA - Memory Usage", "Memory (KB)", cats, memoryMap);
-        enhancedOperationsChart.setChart("Enhanced IBA vs Baseline BA - Operations", "Operations", cats, operationsMap);
+        enhancedTimeChart.setChart("Improved BA + DWA vs Baseline BA - Execution Time", "Time (ms)", cats, timeMap);
+        enhancedMemoryChart.setChart("Improved BA + DWA vs Baseline BA - Memory Usage", "Memory (KB)", cats, memoryMap);
+        enhancedOperationsChart.setChart("Improved BA + DWA vs Baseline BA - Operations", "Operations", cats, operationsMap);
 
         LinkedHashMap<String, double[]> bestWorst = new LinkedHashMap<>();
         bestWorst.put("Baseline Best", caseValues("Baseline BA", "Best"));
         bestWorst.put("Baseline Worst", caseValues("Baseline BA", "Worst"));
-        bestWorst.put("Enhanced Best", caseValues("Enhanced IBA", "Best"));
-        bestWorst.put("Enhanced Worst", caseValues("Enhanced IBA", "Worst"));
+        bestWorst.put("Enhanced Best", caseValues("Improved BA + DWA", "Best"));
+        bestWorst.put("Enhanced Worst", caseValues("Improved BA + DWA", "Worst"));
         bestWorstChart.setChart("Performance Under Best and Worst Cases", "Fitness Score", cats, bestWorst);
     }
 
@@ -1055,7 +1056,7 @@ public class BatAlgorithmFinalDashboard extends JFrame {
 
         if (sizes.length == 0) {
             ResultRecord base = findSingle("Baseline BA");
-            ResultRecord enh = findSingle("Enhanced IBA");
+            ResultRecord enh = findSingle("Improved BA + DWA");
 
             if (base == null || enh == null) {
                 sb.append("Run Full Experiment to generate this section.");
@@ -1064,8 +1065,8 @@ public class BatAlgorithmFinalDashboard extends JFrame {
             }
 
             sb.append("Current Single Run:\n");
-            sb.append(base.time <= enh.time ? "• Faster runtime: Baseline BA\n" : "• Faster runtime: Enhanced IBA\n");
-            sb.append(base.fitness <= enh.fitness ? "• Better path quality: Baseline BA\n" : "• Better path quality: Enhanced IBA\n");
+            sb.append(base.time <= enh.time ? "• Faster runtime: Baseline BA\n" : "• Faster runtime: Improved BA + DWA\n");
+            sb.append(base.fitness <= enh.fitness ? "• Better path quality: Baseline BA\n" : "• Better path quality: Improved BA + DWA\n");
             sb.append("• Baseline fitness: ").append(format(base.fitness)).append("\n");
             sb.append("• Enhanced fitness: ").append(format(enh.fitness)).append("\n\n");
             sb.append("Use Run Full Experiment to identify input-size thresholds.");
@@ -1078,7 +1079,7 @@ public class BatAlgorithmFinalDashboard extends JFrame {
 
         for (String size : sizes) {
             ResultRecord base = findRecord(size, "Baseline BA", "Average");
-            ResultRecord enh = findRecord(size, "Enhanced IBA", "Average");
+            ResultRecord enh = findRecord(size, "Improved BA + DWA", "Average");
 
             if (base == null || enh == null) continue;
 
@@ -1087,7 +1088,7 @@ public class BatAlgorithmFinalDashboard extends JFrame {
             if (base.time <= enh.time) {
                 sb.append("• Faster runtime: Baseline BA\n");
             } else {
-                sb.append("• Faster runtime: Enhanced IBA\n");
+                sb.append("• Faster runtime: Improved BA + DWA\n");
             }
 
             if (base.fitness <= enh.fitness) {
@@ -1095,7 +1096,7 @@ public class BatAlgorithmFinalDashboard extends JFrame {
                 sb.append("• Better path quality: Baseline BA\n");
             } else {
                 enhancedFitnessWins++;
-                sb.append("• Better path quality: Enhanced IBA\n");
+                sb.append("• Better path quality: Improved BA + DWA\n");
             }
 
             sb.append("• Baseline fitness: ").append(format(base.fitness)).append("\n");
@@ -1105,7 +1106,7 @@ public class BatAlgorithmFinalDashboard extends JFrame {
         sb.append("Overall Identification:\n");
 
         if (enhancedFitnessWins > baselineFitnessWins) {
-            sb.append("The Enhanced Improved Bat Algorithm outperformed the baseline in path quality in most input sizes.\n");
+            sb.append("The Improved BA + DWA hybrid algorithm outperformed the baseline in path quality in most input sizes.\n");
         } else if (baselineFitnessWins > enhancedFitnessWins) {
             sb.append("The Baseline Bat Algorithm outperformed the enhanced algorithm in path quality in most input sizes for this run.\n");
         } else {
@@ -1116,7 +1117,7 @@ public class BatAlgorithmFinalDashboard extends JFrame {
         sb.append("Check the Runtime, Memory, Operations, and Scalability graphs. The input size where the two lines separate more clearly is where the performance difference becomes more visible.\n");
 
         sb.append("\nConditions Under Which One Algorithm Dominates:\n");
-        sb.append("• Enhanced IBA usually dominates when path quality, lower fitness, and smoother paths are prioritized.\n");
+        sb.append("• Improved BA + DWA usually dominates when path quality, lower fitness, and smoother paths are prioritized.\n");
         sb.append("• Baseline BA may dominate when lower execution time or fewer operations are prioritized.\n");
 
         winnerText.setText(sb.toString());
@@ -1232,6 +1233,9 @@ public class BatAlgorithmFinalDashboard extends JFrame {
         }
 
         PathResult result = evaluateBat(best, counter);
+        if (enhanced) {
+            result = applyHybridIbaDwaRefinement(result, counter);
+        }
         result.history = history;
         return result;
     }
@@ -1316,6 +1320,382 @@ public class BatAlgorithmFinalDashboard extends JFrame {
         counter.add(6);
 
         return new PathResult(length, fitness, turns, collisions, fullPath, controlPoints);
+    }
+
+    PathResult applyHybridIbaDwaRefinement(PathResult globalResult, OperationCounter counter) {
+        List<Point> globalGuide = extractTurningPoints(globalResult.path, counter);
+        List<Point> switchedGuide = applyVirtualPointPathSwitch(globalGuide, counter);
+        List<Point> localPath = runDynamicWindowLocalPlanner(switchedGuide, counter);
+
+        if (localPath.isEmpty() || !localPath.get(localPath.size() - 1).equals(goal)) {
+            List<Point> fallback = findGridPath(start, goal, counter);
+            if (!fallback.isEmpty()) {
+                localPath = fallback;
+                switchedGuide = extractTurningPoints(fallback, counter);
+            }
+        }
+
+        return evaluatePath(localPath, switchedGuide, counter);
+    }
+
+    List<Point> extractTurningPoints(List<Point> path, OperationCounter counter) {
+        List<Point> points = new ArrayList<>();
+
+        if (path == null || path.isEmpty()) {
+            points.add(new Point(start));
+            points.add(new Point(goal));
+            return points;
+        }
+
+        points.add(new Point(path.get(0)));
+
+        for (int i = 1; i < path.size() - 1; i++) {
+            Point previous = path.get(i - 1);
+            Point current = path.get(i);
+            Point next = path.get(i + 1);
+
+            int dx1 = Integer.compare(current.x - previous.x, 0);
+            int dy1 = Integer.compare(current.y - previous.y, 0);
+            int dx2 = Integer.compare(next.x - current.x, 0);
+            int dy2 = Integer.compare(next.y - current.y, 0);
+
+            if (dx1 != dx2 || dy1 != dy2) {
+                points.add(new Point(current));
+            }
+
+            counter.add(6);
+        }
+
+        Point last = path.get(path.size() - 1);
+        if (!points.get(points.size() - 1).equals(last)) {
+            points.add(new Point(last));
+        }
+
+        return points;
+    }
+
+    List<Point> applyVirtualPointPathSwitch(List<Point> guide, OperationCounter counter) {
+        List<Point> switched = new ArrayList<>();
+        switched.add(new Point(start));
+
+        for (int i = 0; i < guide.size() - 1; i++) {
+            Point from = guide.get(i);
+            Point to = guide.get(i + 1);
+
+            if (segmentIsSafe(from, to, counter)) {
+                appendPoint(switched, to);
+            } else {
+                List<Point> alternate = findVirtualPointRoute(from, to, counter);
+                if (alternate.isEmpty()) {
+                    alternate = findGridPath(from, to, counter);
+                }
+
+                for (Point p : alternate) {
+                    appendPoint(switched, p);
+                }
+            }
+
+            counter.add(3);
+        }
+
+        if (!switched.get(switched.size() - 1).equals(goal)) {
+            appendPoint(switched, goal);
+        }
+
+        return switched;
+    }
+
+    List<Point> findVirtualPointRoute(Point from, Point to, OperationCounter counter) {
+        List<Point> nodes = new ArrayList<>();
+        nodes.add(new Point(from));
+        nodes.addAll(createVirtualPoints());
+        nodes.add(new Point(to));
+
+        int n = nodes.size();
+        double[] dist = new double[n];
+        int[] prev = new int[n];
+        boolean[] used = new boolean[n];
+
+        Arrays.fill(dist, Double.POSITIVE_INFINITY);
+        Arrays.fill(prev, -1);
+        dist[0] = 0;
+
+        for (int step = 0; step < n; step++) {
+            int current = -1;
+
+            for (int i = 0; i < n; i++) {
+                if (!used[i] && (current == -1 || dist[i] < dist[current])) {
+                    current = i;
+                }
+            }
+
+            if (current == -1 || Double.isInfinite(dist[current])) break;
+            used[current] = true;
+
+            for (int next = 0; next < n; next++) {
+                if (current == next || used[next]) continue;
+                if (!segmentIsSafe(nodes.get(current), nodes.get(next), counter)) continue;
+
+                double candidate = dist[current] + nodes.get(current).distance(nodes.get(next));
+                if (candidate < dist[next]) {
+                    dist[next] = candidate;
+                    prev[next] = current;
+                }
+
+                counter.add(5);
+            }
+        }
+
+        if (Double.isInfinite(dist[n - 1])) return new ArrayList<>();
+
+        LinkedList<Point> route = new LinkedList<>();
+        for (int at = n - 1; at != -1; at = prev[at]) {
+            route.addFirst(new Point(nodes.get(at)));
+        }
+
+        return route;
+    }
+
+    List<Point> createVirtualPoints() {
+        int low = Math.max(1, gridSize / 5);
+        int mid = gridSize / 2;
+        int high = Math.min(gridSize - 2, (gridSize * 4) / 5);
+
+        List<Point> points = new ArrayList<>();
+        points.add(nearestFreePoint(new Point(low, low)));
+        points.add(nearestFreePoint(new Point(mid, low)));
+        points.add(nearestFreePoint(new Point(high, low)));
+        points.add(nearestFreePoint(new Point(low, mid)));
+        points.add(nearestFreePoint(new Point(high, mid)));
+        points.add(nearestFreePoint(new Point(low, high)));
+        points.add(nearestFreePoint(new Point(mid, high)));
+        points.add(nearestFreePoint(new Point(high, high)));
+        return points;
+    }
+
+    Point nearestFreePoint(Point point) {
+        if (isFree(point.x, point.y)) return point;
+
+        for (int radius = 1; radius < gridSize; radius++) {
+            for (int dx = -radius; dx <= radius; dx++) {
+                for (int dy = -radius; dy <= radius; dy++) {
+                    int x = point.x + dx;
+                    int y = point.y + dy;
+                    if (isFree(x, y)) return new Point(x, y);
+                }
+            }
+        }
+
+        return new Point(start);
+    }
+
+    List<Point> runDynamicWindowLocalPlanner(List<Point> guide, OperationCounter counter) {
+        List<Point> path = new ArrayList<>();
+        Point current = new Point(start);
+        path.add(new Point(current));
+
+        int targetIndex = Math.min(1, guide.size() - 1);
+        Point previous = new Point(current);
+        int maxSteps = gridSize * gridSize * 4;
+
+        for (int step = 0; step < maxSteps && !current.equals(goal); step++) {
+            while (targetIndex < guide.size() - 1 && current.distance(guide.get(targetIndex)) <= 1.0) {
+                targetIndex++;
+            }
+
+            Point target = guide.get(targetIndex);
+            Point next = chooseDynamicWindowMove(previous, current, target, guide, counter);
+            if (next == null || next.equals(current)) break;
+
+            previous = current;
+            current = next;
+            appendPoint(path, current);
+            counter.add(8);
+        }
+
+        return smoothGridPath(path, counter);
+    }
+
+    Point chooseDynamicWindowMove(Point previous, Point current, Point target, List<Point> guide, OperationCounter counter) {
+        Point best = null;
+        double bestScore = -Double.MAX_VALUE;
+
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                if (dx == 0 && dy == 0) continue;
+
+                Point candidate = new Point(current.x + dx, current.y + dy);
+                if (!isFree(candidate.x, candidate.y)) continue;
+
+                double heading = -candidate.distance(target);
+                double clearance = obstacleClearance(candidate);
+                double speed = Math.hypot(dx, dy);
+                double adherence = -distanceToGuide(candidate, guide);
+                double smoothness = previous.equals(current) ? 0 : -turnPenalty(previous, current, candidate);
+                double score = 2.8 * heading + 1.5 * clearance + 0.2 * speed + 1.2 * adherence + 0.7 * smoothness;
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    best = candidate;
+                }
+
+                counter.add(12);
+            }
+        }
+
+        return best;
+    }
+
+    double obstacleClearance(Point point) {
+        double best = 3.0;
+
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dy = -2; dy <= 2; dy++) {
+                int x = point.x + dx;
+                int y = point.y + dy;
+
+                if (!isFree(x, y)) {
+                    best = Math.min(best, Math.hypot(dx, dy));
+                }
+            }
+        }
+
+        return best;
+    }
+
+    double distanceToGuide(Point point, List<Point> guide) {
+        double best = Double.POSITIVE_INFINITY;
+
+        for (Point p : guide) {
+            best = Math.min(best, point.distance(p));
+        }
+
+        return best;
+    }
+
+    double turnPenalty(Point previous, Point current, Point next) {
+        int dx1 = Integer.compare(current.x - previous.x, 0);
+        int dy1 = Integer.compare(current.y - previous.y, 0);
+        int dx2 = Integer.compare(next.x - current.x, 0);
+        int dy2 = Integer.compare(next.y - current.y, 0);
+        return (dx1 == dx2 && dy1 == dy2) ? 0.0 : 1.0;
+    }
+
+    List<Point> smoothGridPath(List<Point> path, OperationCounter counter) {
+        if (path.size() < 3) return path;
+
+        List<Point> smoothed = new ArrayList<>();
+        int i = 0;
+        smoothed.add(new Point(path.get(0)));
+
+        while (i < path.size() - 1) {
+            int best = i + 1;
+
+            for (int j = path.size() - 1; j > i + 1; j--) {
+                if (segmentIsSafe(path.get(i), path.get(j), counter)) {
+                    best = j;
+                    break;
+                }
+            }
+
+            appendPoint(smoothed, path.get(best));
+            i = best;
+            counter.add(4);
+        }
+
+        return smoothed;
+    }
+
+    List<Point> findGridPath(Point from, Point to, OperationCounter counter) {
+        Point[][] parent = new Point[gridSize][gridSize];
+        boolean[][] visited = new boolean[gridSize][gridSize];
+        ArrayDeque<Point> queue = new ArrayDeque<>();
+
+        if (!isFree(from.x, from.y) || !isFree(to.x, to.y)) return new ArrayList<>();
+
+        queue.add(new Point(from));
+        visited[from.x][from.y] = true;
+
+        int[] delta = {-1, 0, 1};
+
+        while (!queue.isEmpty()) {
+            Point current = queue.removeFirst();
+            if (current.equals(to)) break;
+
+            for (int dx : delta) {
+                for (int dy : delta) {
+                    if (dx == 0 && dy == 0) continue;
+
+                    int x = current.x + dx;
+                    int y = current.y + dy;
+
+                    if (!isFree(x, y) || visited[x][y]) continue;
+
+                    visited[x][y] = true;
+                    parent[x][y] = current;
+                    queue.addLast(new Point(x, y));
+                    counter.add(8);
+                }
+            }
+        }
+
+        if (!visited[to.x][to.y]) return new ArrayList<>();
+
+        LinkedList<Point> path = new LinkedList<>();
+        for (Point at = new Point(to); at != null; at = parent[at.x][at.y]) {
+            path.addFirst(new Point(at));
+            if (at.equals(from)) break;
+        }
+
+        return path;
+    }
+
+    PathResult evaluatePath(List<Point> path, List<Point> controlPoints, OperationCounter counter) {
+        if (path == null || path.isEmpty()) {
+            path = new ArrayList<>();
+            path.add(new Point(start));
+        }
+
+        double length = 0;
+        int collisions = 0;
+
+        for (int i = 0; i < path.size(); i++) {
+            Point p = path.get(i);
+            if (!isFree(p.x, p.y)) collisions++;
+
+            if (i < path.size() - 1) {
+                length += p.distance(path.get(i + 1));
+            }
+
+            counter.add(5);
+        }
+
+        int turns = countTurns(path, counter);
+        double smoothnessCost = turns * Math.PI / 4.0;
+        double fitness =
+                PATH_WEIGHT * length +
+                SAFETY_WEIGHT * COLLISION_PENALTY * collisions +
+                SMOOTHNESS_WEIGHT * smoothnessCost;
+
+        return new PathResult(length, fitness, turns, collisions, path, controlPoints);
+    }
+
+    boolean segmentIsSafe(Point from, Point to, OperationCounter counter) {
+        for (Point point : createLine(from, to, counter)) {
+            if (!isFree(point.x, point.y)) return false;
+        }
+
+        return true;
+    }
+
+    boolean isFree(int x, int y) {
+        return x >= 0 && x < gridSize && y >= 0 && y < gridSize && !obstacles[x][y];
+    }
+
+    void appendPoint(List<Point> points, Point point) {
+        if (points.isEmpty() || !points.get(points.size() - 1).equals(point)) {
+            points.add(new Point(point));
+        }
     }
 
     int countTurns(List<Point> path, OperationCounter counter) {
@@ -1564,7 +1944,7 @@ public class BatAlgorithmFinalDashboard extends JFrame {
             g2.setColor(new Color(35, 125, 235));
             g2.fillRoundRect(x, y - 8, 24, 6, 6, 6);
             g2.setColor(new Color(50, 60, 75));
-            g2.drawString("Enhanced IBA", x + 32, y);
+            g2.drawString("Improved BA + DWA", x + 32, y);
 
             x += 150;
 
@@ -1603,9 +1983,9 @@ public class BatAlgorithmFinalDashboard extends JFrame {
             }
 
             drawCard(g2, "Baseline BA", baselineResult, 18, 55, new Color(225, 80, 75));
-            drawCard(g2, "Enhanced IBA", enhancedResult, 290, 55, new Color(35, 125, 235));
+            drawCard(g2, "Improved BA + DWA", enhancedResult, 290, 55, new Color(35, 125, 235));
 
-            String winner = enhancedResult.fitness < baselineResult.fitness ? "Enhanced IBA" : "Baseline BA";
+            String winner = enhancedResult.fitness < baselineResult.fitness ? "Improved BA + DWA" : "Baseline BA";
 
             g2.setColor(new Color(245, 248, 252));
             g2.fillRoundRect(18, 170, getWidth() - 36, 45, 16, 16);
